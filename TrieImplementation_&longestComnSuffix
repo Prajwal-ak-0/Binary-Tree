@@ -1,0 +1,132 @@
+#include<iostream>
+#include<vector>
+using namespace std;
+
+class TrieNode{
+    public:
+        char data;
+        TrieNode* children[26];
+        bool isTerminal;
+
+//TO KEEP A TRACK OF NO OF CHILDS......
+        int childCount;
+        
+        TrieNode(char data){
+            this->data=data;
+            isTerminal=false;
+            for(int i=0;i<26;i++){
+                children[i]=NULL;
+            }
+            childCount=0;
+        }
+};
+
+class Trie{
+    public:
+        TrieNode* root;
+        
+        Trie(char ch){
+            root=new TrieNode('ch');
+        }
+        
+        void insertUtil(TrieNode* root, string word){
+            if(word.length()==0){
+                root->isTerminal=true;
+                return;
+            }
+            
+         TrieNode* child;;
+         int index=word[0]-'a';
+         if(root->children[index]!=NULL){
+             child=root->children[index];
+         }
+         else{
+             child=new TrieNode(word[0]);
+
+//After creation of ecah trienode increment of childcount........
+             root->childCount++;
+             root->children[index]=child;
+         }
+         insertUtil(child,word.substr(1));
+        }
+        
+        void insert(string word){
+            insertUtil(root, word);
+        }
+        
+        bool searchUtil(TrieNode* root, string word){
+            if(word.length()==0){
+                return root->isTerminal;
+            }
+            TrieNode* child;
+            int index=word[0]-'a';
+            if(root->children[index]!=NULL){
+                child=root->children[index];
+            }
+            else{
+                return false;
+            }
+            return searchUtil(child,word.substr(1));
+        }
+        
+        bool search(string word){
+            return searchUtil(root,word);
+        }
+        
+        void deleteUtil(TrieNode* root, string word){
+            if(word.length()==0){
+                root->isTerminal=false;
+                return;
+            }
+            
+            TrieNode* child;;
+            int index=word[0]-'a';
+            if(root->children[index]!=NULL){
+                child=root->children[index];
+            }
+            
+            deleteUtil(child,word.substr(1));
+        }
+        
+        void deletee(string word){
+            deleteUtil(root, word);
+        }
+
+
+// function to find longest common suffix........        
+        void lcp(string str,string &ans){
+            for(int i=0;i<str.length();i++){
+                char ch=str[i];
+                if(root->childCount==1){
+                    ans.push_back(ch);
+                    int index=ch-'a';
+                    root=root->children[index];
+                }
+                else{
+                    break;
+                }
+                if(root->isTerminal){
+                    break;
+                }
+            }
+        }
+        
+};
+
+
+
+int main(){
+    Trie* t=new Trie('\0');
+    
+    vector<string> a={"coding","codehelp","coders","codemn"};
+
+//inserting all the string into trie .......
+    for(int i=0;i<a.size();i++){
+        t->insert(a[i]);
+    }
+    string first=a[0];
+    string ans="";
+    t->lcp(first,ans);
+    cout<<ans;
+    
+}
